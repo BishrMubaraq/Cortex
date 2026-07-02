@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light mode — clean, near-white, desaturated grays */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 12%;
+
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 10% 20%;
+
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+
+    --accent: 240 5% 94%;
+    --accent-foreground: 240 10% 20%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 60% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 243 75% 59%;
+
+    --radius: 0.6rem;
+  }
+
+  .dark {
+    /* Dark mode (default) — near-black, cool neutral, single indigo accent */
+    --background: 240 6% 7%;
+    --foreground: 0 0% 96%;
+
+    --card: 240 6% 9%;
+    --card-foreground: 0 0% 96%;
+
+    --popover: 240 6% 9%;
+    --popover-foreground: 0 0% 96%;
+
+    --primary: 243 75% 66%;
+    --primary-foreground: 240 10% 8%;
+
+    --secondary: 240 5% 14%;
+    --secondary-foreground: 0 0% 92%;
+
+    --muted: 240 5% 13%;
+    --muted-foreground: 240 5% 58%;
+
+    --accent: 240 5% 16%;
+    --accent-foreground: 0 0% 96%;
+
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 55% 55%;
+    --success-foreground: 240 10% 8%;
+
+    --border: 240 5% 16%;
+    --input: 240 5% 18%;
+    --ring: 243 75% 66%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+    font-variation-settings: "opsz" 32;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Thin, subtle scrollbars that match the neutral palette */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 999px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer utilities {
+  .typing-dot {
+    animation: typing-bounce 1.2s infinite ease-in-out both;
+  }
+}
