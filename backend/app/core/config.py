@@ -38,6 +38,19 @@ class Settings(BaseSettings):
     # --- CORS ---
     CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
 
+    # --- LLM providers (plain streaming chat; no RAG/agents yet) ---
+    ANTHROPIC_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
+    # Concrete model ids the UI's model dropdown maps onto.
+    ANTHROPIC_MODEL: str = "claude-3-5-sonnet-latest"
+    OPENAI_MODEL: str = "gpt-4o"
+    # Generation limits / behaviour.
+    LLM_MAX_TOKENS: int = 1024
+    LLM_SYSTEM_PROMPT: str = (
+        "You are a concise, helpful AI research assistant. Answer clearly and "
+        "accurately. If you are unsure, say so."
+    )
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
