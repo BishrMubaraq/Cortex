@@ -51,6 +51,8 @@ export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   citations?: { id: number; label: string }[];
+  /** Set when the assistant turn failed (renders in an error style). */
+  error?: boolean;
 }
 
 export const sampleConversation: ChatMessage[] = [
