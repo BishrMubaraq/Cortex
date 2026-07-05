@@ -8,7 +8,7 @@ else is mock data used to prove the auth flow works.
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import auth
+from app.api import auth, chat
 from app.api.deps import get_current_user
 from app.core.config import settings
 from app.models.user import User
@@ -24,6 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(chat.router)
 
 
 @app.get("/health", tags=["system"])

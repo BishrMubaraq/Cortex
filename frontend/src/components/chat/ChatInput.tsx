@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ArrowUp, Paperclip } from "lucide-react";
+import { ArrowUp, Paperclip, Square } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,14 +14,17 @@ interface ChatInputProps {
   model: Model;
   onModelChange: (model: Model) => void;
   onSend: (text: string) => void;
-  disabled?: boolean;
+  /** True while a response is streaming; shows a Stop button. */
+  streaming?: boolean;
+  onStop?: () => void;
 }
 
 export function ChatInput({
   model,
   onModelChange,
   onSend,
-  disabled,
+  streaming,
+  onStop,
 }: ChatInputProps) {
   const [value, setValue] = React.useState("");
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -36,7 +39,7 @@ export function ChatInput({
 
   function submit() {
     const text = value.trim();
-    if (!text || disabled) return;
+    if (!text || streaming) return;
     onSend(text);
     setValue("");
   }
@@ -77,18 +80,29 @@ export function ChatInput({
             </Tooltip>
             <ModelSelector value={model} onChange={onModelChange} />
           </div>
-          <Button
-            size="icon"
-            onClick={submit}
-            disabled={!value.trim() || disabled}
-            aria-label="Send message"
-          >
-            <ArrowUp className="h-4 w-4" />
-          </Button>
+          {streaming ? (
+            <Button
+              size="icon"
+              variant="secondary"
+              onClick={onStop}
+              aria-label="Stop generating"
+            >
+              <Square className="h-3.5 w-3.5 fill-current" />
+            </Button>
+          ) : (
+            <Button
+              size="icon"
+              onClick={submit}
+              disabled={!value.trim()}
+              aria-label="Send message"
+            >
+              <ArrowUp className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        Responses are mocked — no model is connected yet.
+        {model.name} · responses stream live from the backend.
       </p>
     </div>
   );

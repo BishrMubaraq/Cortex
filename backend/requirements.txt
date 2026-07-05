@@ -8,3 +8,7 @@ passlib[bcrypt]==1.7.4
 # so pin bcrypt to the last known-good release.
 bcrypt==4.0.1
 python-multipart==0.0.20
+
+# --- LLM providers (streaming chat) ---
+anthropic==0.42.0
+openai==1.59.6

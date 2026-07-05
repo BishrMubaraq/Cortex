@@ -97,3 +97,84 @@ export const authApi = {
     ),
   me: () => api.get<AuthUser>("/auth/me"),
 };
+
+// --- Streaming chat (POST /api/chat, Server-Sent Events) ---
+
+export interface ChatStreamMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+/**
+ * Stream a chat completion from the backend.
+ *
+ * We use `fetch` + a ReadableStream reader (not the browser `EventSource`,
+ * which is GET-only and can't send the Authorization header). Tokens arrive as
+ * SSE frames: `data: {"delta": "..."}` / `data: {"error": "..."}`, terminated by
+ * `data: [DONE]`. Network chunks don't align with frames, so we buffer and only
+ * process complete `\n\n`-delimited frames.
+ */
+export async function streamChat(
+  messages: ChatStreamMessage[],
+  model: string,
+  onToken: (delta: string) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  const headers = new Headers({ "Content-Type": "application/json" });
+  const token = tokenGetter();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  let response: Response;
+  try {
+    response = await fetch(`${BASE_URL}/api/chat`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ messages, model }),
+      signal,
+    });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") throw err;
+    throw new ApiError(0, "Cannot reach the server. Is the backend running?");
+  }
+
+  if (!response.ok || !response.body) {
+    let detail = `Request failed (${response.status})`;
+    try {
+      const data = await response.json();
+      if (data?.detail) detail = data.detail;
+    } catch {
+      /* ignore non-JSON error bodies */
+    }
+    throw new ApiError(response.status, detail);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    const frames = buffer.split("\n\n");
+    buffer = frames.pop() ?? "";
+
+    for (const frame of frames) {
+      const trimmed = frame.trim();
+      if (!trimmed.startsWith("data:")) continue;
+      const data = trimmed.slice("data:".length).trim();
+      if (data === "[DONE]") return;
+
+      let parsed: { delta?: string; error?: string };
+      try {
+        parsed = JSON.parse(data);
+      } catch {
+        continue;
+      }
+      // Errors are streamed in-band by the backend before the [DONE] sentinel.
+      if (parsed.error) throw new ApiError(502, parsed.error);
+      if (parsed.delta) onToken(parsed.delta);
+    }
+  }
+}
